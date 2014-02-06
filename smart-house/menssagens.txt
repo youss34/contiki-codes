@@ -1,0 +1,21 @@
+menssagens lampada
+getStatus(lampada:uIP):int - 1 = ligada, 0 = desligada
+turn_on(lampada:uIP):void
+turn_off(lampada:uIP):void
+
+fogao
+getTeperature(fogao:uIP):real
+getMouthStoveStatus(fogao:uIP):stuct mouths_stove
+struct mouths_stove { short mouth1; short mouth2 ... }
+
+tv/radio
+mesmas funcoes da lampada
+getChanel(tv:uIP):int
+setChanel(tv:uIP, chanel:int):void
+getVolume(tv:uIP):int
+setVolume(tv:uIP, volume:int):void
+
+termostato
+mesmas funcoes da lampada
+getTemperature(thermostat:uIP):real
+setTemperature(thermostat:uIP, temperatute:real):void

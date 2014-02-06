@@ -1,0 +1,14 @@
+DEVICE     | STATUS                | ACTIONS
+-----------+-----------------------+---------
+lamp       | on/off                | turn on/off
+-----------+-----------------------+---------
+stove      | which mouth is on/off | change thermostat parameters - range (0%-100%)
+           | oven temperature      |
+-----------+-----------------------+---------
+tv         | on/off                | turn on/off
+radio      | chanel                | change chanel
+           | sound intensity       | change sound intensity
+-----------+-----------------------+---------
+thermostat | on/off                | turn on/off
+           | temperature           | change temperature
+-----------+-----------------------+---------
