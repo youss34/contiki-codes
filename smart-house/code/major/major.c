@@ -52,26 +52,6 @@ void lamp_commands(short command, uip_ipaddr_t *lamp_addr)
 			lamp_addr, UIP_HTONS(UDP_CLIENT_PORT));
 }
 
-/*static void tcpip_handler()
-{
-	char *appdata;
-
-	if(uip_newdata()) {
-		appdata = (char *)uip_appdata;
-		appdata[uip_datalen()] = 0;
-		PRINTF("DATA recv '%s' from ", appdata);
-		PRINTF("%d",
-				UIP_IP_BUF->srcipaddr.u8[sizeof(UIP_IP_BUF->srcipaddr.u8) - 1]);
-		PRINTF("\n");
-		//Server reply
-		PRINTF("Sending reply...\n");
-		uip_ipaddr_copy(&server_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
-		uip_udp_packet_send(server_conn, "Reply from server",
-				sizeof("Reply from server"));
-		//uip_create_unspecified(&server_conn->ripaddr);
-	}
-}*/
-
 static uip_ipaddr_t * set_global_address(void)
 {
 	static uip_ipaddr_t ipaddr;
@@ -109,27 +89,6 @@ static void create_rpl_dag(uip_ipaddr_t *ipaddr)
 		PRINTF("Failed to create a new RPL DAG\n");
 	}
 }
-
-/*static void second_recv()
-{
-	char *appdata;
-
-	if(uip_newdata()) {
-		appdata = (char *)uip_appdata;
-		appdata[uip_datalen()] = 0;
-		PRINTF("Second data recv '%s' from ", appdata);
-		PRINTF("%d",
-				UIP_IP_BUF->srcipaddr.u8[sizeof(UIP_IP_BUF->srcipaddr.u8) - 1]);
-		PRINTF("\n");
-	}
-}
-
-static void send_packet(void *ptr)
-{
-	PRINTF("Sending second data...\n");
-	uip_udp_packet_send(server_conn, "Second", sizeof("Second"));
-	uip_create_unspecified(&server_conn->ripaddr);
-}*/
 
 static void print_local_addresses()
 {

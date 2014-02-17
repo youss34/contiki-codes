@@ -1,11 +1,9 @@
 #include "contiki.h"
-//#include "lib/random.h"
 
 #include "net/uip.h"
 #include "net/uip-ds6.h"
 #include "net/uip-udp-packet.h"
 
-//#include "sys/ctimer.h"
 #include "sys/node-id.h"
 
 #include "dev/leds.h"
@@ -53,10 +51,8 @@ static void command_receiver()
 		short command = *recv;
 		if(command == 2){
 			int status = get_status();
-			uip_ipaddr_copy(&client_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
-			uip_udp_packet_send(client_conn, &status, sizeof(int));
-			//uip_udp_packet_sendto(client_conn, &status, sizeof(int),
-			//		&server_ipaddr, UIP_HTONS(UDP_SERVER_PORT));
+			uip_udp_packet_sendto(client_conn, &status, sizeof(int),
+					&server_ipaddr, UIP_HTONS(UDP_SERVER_PORT));
 		}
 		else if(command == 1){
 			turn_on();
@@ -82,41 +78,6 @@ void turn_off()
 {
 	leds_off(LEDS_ALL);
 }
-
-/*static void tcpip_handler()
-{
-	char *str;
-
-	if(uip_newdata()) {
-		str = uip_appdata;
-		str[uip_datalen()] = '\0';
-		printf("DATA recv '%s'\n", str);
-	}
-}
-
-static void send_packet(void *ptr)
-{
-	static int seq_id;
-	char buf[MAX_PAYLOAD_LEN];
-
-	seq_id++;
-	PRINTF("DATA send to %d 'Hello %d'\n",
-	server_ipaddr.u8[sizeof(server_ipaddr.u8) - 1], seq_id);
-	sprintf(buf, "Hello %d from the client", seq_id);
-	uip_udp_packet_sendto(client_conn, buf, strlen(buf),
-			&server_ipaddr, UIP_HTONS(UDP_SERVER_PORT));
-}
-
-static void client_reply(void *ptr)
-{
-	char buf[MAX_PAYLOAD_LEN];
-
-	PRINTF("Sending reply to %d\n",
-	server_ipaddr.u8[sizeof(server_ipaddr.u8) - 1]);
-	sprintf(buf, "Reply from client");
-	uip_udp_packet_sendto(client_conn, buf, strlen(buf),
-			&server_ipaddr, UIP_HTONS(UDP_SERVER_PORT));
-}*/
 
 static void print_local_addresses()
 {
@@ -208,20 +169,6 @@ PROCESS_THREAD(udp_client_process, ev, data)
 				puts("Command received...");
 				command_receiver();
 			}
-
-			/*if(etimer_expired(&periodic)) {
-				etimer_reset(&periodic);
-				ctimer_set(&backoff_timer, SEND_TIME, send_packet, NULL);
-
-				#if WITH_COMPOWER
-				if (print == 0) {
-					powertrace_print("#P");
-				}
-				if (++print == 3) {
-					print = 0;
-				}
-				#endif
-			}*/
 
 			#if WITH_COMPOWER
 			if (print == 0) {
