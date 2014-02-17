@@ -1,14 +1,12 @@
 #include "contiki.h"
-//#include "lib/random.h"
+#include "lib/random.h"
 
 #include "net/uip.h"
 #include "net/uip-ds6.h"
 #include "net/uip-udp-packet.h"
 
-//#include "sys/ctimer.h"
+#include "sys/ctimer.h"
 #include "sys/node-id.h"
-
-#include "dev/leds.h"
 
 #ifdef WITH_COMPOWER
 #include "powertrace.h"
@@ -19,8 +17,6 @@
 
 #define UDP_CLIENT_PORT 8765
 #define UDP_SERVER_PORT 5678
-
-#define UIP_IP_BUF   ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
 
 #define UDP_EXAMPLE_ID  190
 
@@ -42,48 +38,7 @@ static uip_ipaddr_t server_ipaddr;
 PROCESS(udp_client_process, "UDP client process");
 AUTOSTART_PROCESSES(&udp_client_process);
 
-int get_status();
-void turn_off();
-void turn_on();
-
-static void command_receiver()
-{
-	if(uip_newdata()) {
-		short *recv = (short*)uip_appdata;
-		short command = *recv;
-		if(command == 2){
-			int status = get_status();
-			uip_ipaddr_copy(&client_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
-			uip_udp_packet_send(client_conn, &status, sizeof(int));
-			//uip_udp_packet_sendto(client_conn, &status, sizeof(int),
-			//		&server_ipaddr, UIP_HTONS(UDP_SERVER_PORT));
-		}
-		else if(command == 1){
-			turn_on();
-		}
-		else if(command == 0){
-			turn_off();
-		}
-	}
-}
-
-int get_status()
-{
-	unsigned char status = leds_get();
-	return (int)status;
-}
-
-void turn_on()
-{
-	leds_on(LEDS_ALL);
-}
-
-void turn_off()
-{
-	leds_off(LEDS_ALL);
-}
-
-/*static void tcpip_handler()
+static void tcpip_handler(void)
 {
 	char *str;
 
@@ -116,9 +71,9 @@ static void client_reply(void *ptr)
 	sprintf(buf, "Reply from client");
 	uip_udp_packet_sendto(client_conn, buf, strlen(buf),
 			&server_ipaddr, UIP_HTONS(UDP_SERVER_PORT));
-}*/
+}
 
-static void print_local_addresses()
+static void print_local_addresses(void)
 {
 	int i;
 	uint8_t state;
@@ -138,21 +93,13 @@ static void print_local_addresses()
 	}
 }
 
-static void set_global_address()
+static void set_global_address(void)
 {
 	uip_ipaddr_t ipaddr;
 
-	if(node_id == 2){
-		uip_ip6addr(&ipaddr, 0xaaaa, 0, 0, 0, 0, 0, 0, 2);
-		//uip_ds6_set_addr_iid(&ipaddr, &uip_lladdr);
-		//uip_ds6_addr_add(&ipaddr, 0, ADDR_AUTOCONF);
-		uip_ds6_addr_add(&ipaddr, 0, ADDR_MANUAL);
-	}
-	else{
-		uip_ip6addr(&ipaddr, 0xaaaa, 0, 0, 0, 0, 0, 0, 0);
-		uip_ds6_set_addr_iid(&ipaddr, &uip_lladdr);
-		uip_ds6_addr_add(&ipaddr, 0, ADDR_AUTOCONF);
-	}
+	uip_ip6addr(&ipaddr, 0xaaaa, 0, 0, 0, 0, 0, 0, 0);
+	uip_ds6_set_addr_iid(&ipaddr, &uip_lladdr);
+	uip_ds6_addr_add(&ipaddr, 0, ADDR_AUTOCONF);
 
 	#if 0
 	/* Mode 1 - 64 bits inline */
@@ -168,6 +115,10 @@ static void set_global_address()
 
 PROCESS_THREAD(udp_client_process, ev, data)
 {
+	static struct etimer periodic;
+	static struct ctimer backoff_timer;
+	static int flag;
+
 	#if WITH_COMPOWER
 	static int print = 0;
 	#endif
@@ -200,16 +151,21 @@ PROCESS_THREAD(udp_client_process, ev, data)
 		powertrace_sniff(POWERTRACE_ON);
 		#endif
 		
-		//etimer_set(&periodic, SEND_INTERVAL);
+		flag = 0;
+		etimer_set(&periodic, SEND_INTERVAL);
 		while(1) {
 			PROCESS_YIELD();
-			if(ev == tcpip_event) {
-				//tcpip_handler();
-				puts("Command received...");
-				command_receiver();
+			if(ev == tcpip_event && flag == 0) {
+				tcpip_handler();
+				flag = 1;
+			}
+			else if(ev == tcpip_event && flag == 1){
+				tcpip_handler();
+				client_reply(NULL);
+				flag = 0;
 			}
 
-			/*if(etimer_expired(&periodic)) {
+			if(etimer_expired(&periodic)) {
 				etimer_reset(&periodic);
 				ctimer_set(&backoff_timer, SEND_TIME, send_packet, NULL);
 
@@ -221,16 +177,7 @@ PROCESS_THREAD(udp_client_process, ev, data)
 					print = 0;
 				}
 				#endif
-			}*/
-
-			#if WITH_COMPOWER
-			if (print == 0) {
-				powertrace_print("#P");
 			}
-			if (++print == 3) {
-				print = 0;
-			}
-			#endif
 		}
 	}
 
