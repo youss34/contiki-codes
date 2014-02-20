@@ -5,15 +5,12 @@
 
 #include <string.h>
 
+#include "./SmartHome.h"
+
 #define UIP_IP_BUF ((struct uip_udpip_hdr *)&uip_buf[UIP_LLH_LEN])
 
 #define DEBUG DEBUG_PRINT
 #include "net/uip-debug.h"
-
-struct cmd {
-  uint8_t cmd;
-  uint8_t on_off;
-};
 
 static struct uip_udp_conn *lamp_conn;
 
@@ -23,22 +20,24 @@ AUTOSTART_PROCESSES(&lamp_process);
 static void udp_handler(void)
 {
 	if(uip_newdata()) {
-		struct cmd *command = (struct cmd *)uip_appdata;
+		cmd_t *command = (cmd_t *)uip_appdata;
 
-		PRINTF("Command %u received from ", command->cmd);
+		PRINTF("Command %u received from ", command->id);
 		PRINT6ADDR(&(UIP_IP_BUF->srcipaddr));
 		PRINTF("\n");
 		PRINTF("Port: %u\n", UIP_HTONS(UIP_IP_BUF->srcport));
 		
-		if(command->cmd == 101){
+		if(command->id == GET_STATUS){
 			unsigned char status = leds_get();
-			uip_udp_packet_sendto(lamp_conn, &status, sizeof(unsigned char),
+			command->id = RESP_GET_STATION;
+			command->info = (uint8_t) status;
+			uip_udp_packet_sendto(lamp_conn, command, sizeof(cmd_t),
 				&UIP_IP_BUF->srcipaddr, UIP_IP_BUF->srcport);
 		}
-		else if(command->on_off == 1){
+		else if(command->id == CMD_TURN && command->info == TURN_ON){
 			leds_on(LEDS_ALL);
 		}
-		else if(command->on_off == 2){
+		else if(command->id == CMD_TURN && command->info == TURN_OFF){
 			leds_off(LEDS_ALL);
 		}
 		else{

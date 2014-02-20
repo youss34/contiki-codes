@@ -5,10 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef struct cmd_s {
-  uint8_t cmd;
-  uint8_t volume;
-} cmd_t;
+#include "../SmartHome.h"
 
 int main(int argc, char**argv)
 {
@@ -25,19 +22,19 @@ int main(int argc, char**argv)
    memset(&addr, 0, sizeof(addr));
 
    addr.sin6_family = AF_INET6;
-   inet_pton(AF_INET6, "FEC0::2", &addr.sin6_addr.s6_addr);
+   inet_pton(AF_INET6, "aaaa::212:7403:3:303", &addr.sin6_addr.s6_addr);
    addr.sin6_port = htons(9000);
 
-   c.cmd = 113;
-  // c.volume = 20;
+   c.id = SET_VOLUME;
+   c.info = 40;
 	 
-	 uint32_t volume;
+	 /*uint32_t volume;
 	 
 	 printf("Informe o volume desejado: ");
 	 scanf("%u", &volume);
 	 getchar();
 	 
-	 c.volume = volume;
+	 c.volume = volume;*/
 	 
    sendto(sockfd, &c, sizeof(c), 0, (struct sockaddr*)&addr, sizeof(addr));
 
@@ -46,8 +43,8 @@ int main(int argc, char**argv)
 	if( (recvfrom(sockfd, &buf, sizeof(buf), 0, (struct sockaddr*)&remaddr, &addrlen) > 0))
 	{
 		printf("Recebendo confirmação..\n");
-		if (buf.cmd == 212)
-			printf("Volume selecionado: %u \n", buf.volume);
+		if (buf.id == SET_VOLUME)
+			printf("Volume selecionado: %u \n", buf.info);
 	}
 	
   close(sockfd);

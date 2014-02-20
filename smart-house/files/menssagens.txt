@@ -1,4 +1,5 @@
-menssagens lampada
+menssagens -------
+lampada
 getStatus(lampada:uIP):int - 1 = ligada, 0 = desligada
 turn_on(lampada:uIP):void
 turn_off(lampada:uIP):void
@@ -19,3 +20,14 @@ termostato
 mesmas funcoes da lampada
 getTemperature(thermostat:uIP):real
 setTemperature(thermostat:uIP, temperatute:real):void
+
+codigos:
+- get status para todos = 101
+- turn para todos = 102 / value 1 = ON, value 2 = OFF
+- set channel/station = 103 / value = canal ou estacao
+- get volume = 105
+- set volume = 106 / value = volume
+- get temperatura termostato = 107
+- set temperatura termostato = 108
+- get status chamas/forno fogao = 109
+- get temperatura fogao = 110

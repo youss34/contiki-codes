@@ -5,15 +5,13 @@
 #include <stdio.h>
 #include <string.h>
 
-struct cmd {
-  uint8_t cmd;
-};
+#include "../SmartHome.h"
 
 int main(int argc, char**argv)
 {
    int sockfd;
    
-   struct cmd c;
+   cmdf_t c;
    
    struct sockaddr_in6 addr;
 	 struct sockaddr_in6 remaddr;
@@ -24,19 +22,25 @@ int main(int argc, char**argv)
    memset(&addr, 0, sizeof(addr));
 
    addr.sin6_family = AF_INET6;
-   inet_pton(AF_INET6, "FEC0::2", &addr.sin6_addr.s6_addr);
+   inet_pton(AF_INET6, "aaaa::212:7404:4:404", &addr.sin6_addr.s6_addr);
    addr.sin6_port = htons(9000);
 
-   c.cmd = 121;
-
+   c.id = GET_STATUS;
 
    sendto(sockfd, &c, sizeof(c), 0, (struct sockaddr*)&addr, sizeof(addr));
 
-	unsigned char buf[512];
+	radio_status_t buf;
 	
-	if( (recvfrom(sockfd, buf, sizeof(c), 0, (struct sockaddr*)&remaddr, &addrlen) > 0))
+	if( (recvfrom(sockfd, &buf, sizeof(radio_status_t), 0, (struct sockaddr*)&remaddr, &addrlen) > 0))
 	{
-		printf("Status (0 = OFF / 1 = ON): %s \n", buf);
+		if(buf.on_off){
+			puts("Radio ON");
+		}
+		else{
+			puts("Radio OFF");
+		}
+		printf("Station: %.2f\n", buf.station);
+		printf("Volume: %u\n", buf.volume);
 	}
 	
   close(sockfd);

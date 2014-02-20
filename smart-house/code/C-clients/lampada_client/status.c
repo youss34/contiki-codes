@@ -5,15 +5,13 @@
 #include <stdio.h>
 #include <string.h>
 
-struct cmd {
-  uint8_t cmd;
-};
+#include "../SmartHome.h"
 
 int main(int argc, char**argv)
 {
    int sockfd;
    
-   struct cmd c;
+   cmd_t c;
    
    struct sockaddr_in6 addr;
 	 struct sockaddr_in6 remaddr;
@@ -27,16 +25,13 @@ int main(int argc, char**argv)
    inet_pton(AF_INET6, "aaaa::212:7402:2:202", &addr.sin6_addr.s6_addr);
    addr.sin6_port = htons(9000);
 
-   c.cmd = 101;
-
+   c.id = GET_STATUS;
 
    sendto(sockfd, &c, sizeof(c), 0, (struct sockaddr*)&addr, sizeof(addr));
 
-	unsigned char status;
-	
-	if( (recvfrom(sockfd, &status, sizeof(unsigned char), 0, (struct sockaddr*)&remaddr, &addrlen) > 0))
+	if( (recvfrom(sockfd, &c, sizeof(cmd_t), 0, (struct sockaddr*)&remaddr, &addrlen) > 0))
 	{
-		printf("Mensagem recebida: %u \n", status);
+		printf("Mensagem recebida: %u \n", c.info);
 	}
 	
   close(sockfd);
