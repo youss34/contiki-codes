@@ -1,7 +1,7 @@
 all: remove status_fogao temperature
 
 remove:
-	rm -fr status_fogao temperatute
+	rm -fr status_fogao temperature
 
 status_fogao:
 	gcc status_fogao.c -o status_fogao

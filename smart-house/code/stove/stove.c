@@ -21,7 +21,7 @@ AUTOSTART_PROCESSES(&stove_process);
 static void udp_handler(void)
 {
 	if(uip_newdata()) {
-		cmdf_t *command = (cmdf_t *)uip_appdata;
+		cmd_t *command = (cmd_t *)uip_appdata;
 
 		PRINTF("Command %u received from ", command->id);
 		PRINT6ADDR(&(UIP_IP_BUF->srcipaddr));
@@ -35,9 +35,10 @@ static void udp_handler(void)
 				UIP_IP_BUF->srcport);
 		}
 		else if(command->id == GET_TEMPERATURE){
-			command->info = stove_status.temperature;
-			command->id = RESP_GET_TEMPERATURE;
-			uip_udp_packet_sendto(stove_conn, command, sizeof(cmdf_t),
+			cmdf_t c;
+			c.info = stove_status.temperature;
+			c.id = RESP_GET_TEMPERATURE;
+			uip_udp_packet_sendto(stove_conn, &c, sizeof(cmdf_t),
 				&UIP_IP_BUF->srcipaddr, UIP_IP_BUF->srcport);
 		}
 		else{

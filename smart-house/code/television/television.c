@@ -46,24 +46,22 @@ static void udp_handler(void)
 		}
 		else if(command->id == SET_VOLUME){
 			tv_status.volume = command->info;
-			uip_udp_packet_sendto(television_conn, command, sizeof(cmd_t),
-				&UIP_IP_BUF->srcipaddr, UIP_IP_BUF->srcport);
 		}
 		else if(command->id == GET_VOLUME){
-			command->info = tv_status.volume;
-			command->id = RESP_GET_VOLUME;
-			uip_udp_packet_sendto(television_conn, command, sizeof(cmd_t),
+			cmd_t c;
+			c.info = tv_status.volume;
+			c.id = RESP_GET_VOLUME;
+			uip_udp_packet_sendto(television_conn, &c, sizeof(cmd_t),
 				&UIP_IP_BUF->srcipaddr, UIP_IP_BUF->srcport);
 		}
 		else if(command->id == SET_CHANNEL){
 			tv_status.channel = command->info;
-			uip_udp_packet_sendto(television_conn, command, sizeof(cmd_t),
-				&UIP_IP_BUF->srcipaddr, UIP_IP_BUF->srcport);
 		}
 		else if(command->id == GET_CHANNEL){
-			command->info = tv_status.channel;
-			command->id = RESP_GET_CHANNEL;
-			uip_udp_packet_sendto(television_conn, command, sizeof(cmd_t),
+			cmd_t c;
+			c.info = tv_status.channel;
+			c.id = RESP_GET_CHANNEL;
+			uip_udp_packet_sendto(television_conn, &c, sizeof(cmd_t),
 				&UIP_IP_BUF->srcipaddr, UIP_IP_BUF->srcport);
 		}
 		else{

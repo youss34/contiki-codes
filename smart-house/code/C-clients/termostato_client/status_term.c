@@ -11,7 +11,7 @@ int main(int argc, char**argv)
 {
    int sockfd;
    
-   cmdf_t c;
+   uint8_t c;
    
    struct sockaddr_in6 addr;
 	 struct sockaddr_in6 remaddr;
@@ -25,7 +25,7 @@ int main(int argc, char**argv)
    inet_pton(AF_INET6, "aaaa::212:7406:6:606", &addr.sin6_addr.s6_addr);
    addr.sin6_port = htons(9000);
 
-   c.id = GET_STATUS;
+   c = GET_STATUS;
 
    sendto(sockfd, &c, sizeof(c), 0, (struct sockaddr*)&addr, sizeof(addr));
 

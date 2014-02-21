@@ -10,7 +10,7 @@
 int main(int argc, char**argv)
 {
    int sockfd;
-   cmdf_t c;
+   cmd_t c;
    struct sockaddr_in6 addr;
 
    sockfd = socket(AF_INET6, SOCK_DGRAM, 0);
@@ -22,7 +22,7 @@ int main(int argc, char**argv)
    addr.sin6_port = htons(9000);
 
    c.id = CMD_TURN;
-   c.info = (float)TURN_OFF;
+   c.info = TURN_OFF;
 
    sendto(sockfd, &c, sizeof(c), 0, (struct sockaddr*)&addr, sizeof(addr));
 

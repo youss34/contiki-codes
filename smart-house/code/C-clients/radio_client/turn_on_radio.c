@@ -10,7 +10,7 @@
 int main(int argc, char**argv)
 {
    int sockfd;
-   cmdf_t c;
+   cmd_t c;
    struct sockaddr_in6 addr;
 
    sockfd = socket(AF_INET6, SOCK_DGRAM, 0);

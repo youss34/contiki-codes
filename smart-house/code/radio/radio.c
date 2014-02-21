@@ -22,6 +22,7 @@ static void udp_handler(void)
 {
 	if(uip_newdata()) {
 		cmdf_t *command = (cmdf_t *)uip_appdata;
+		cmd_t *icommand = (cmd_t *)uip_appdata;;
 
 		PRINTF("Command %u received from ", command->id);
 		PRINT6ADDR(&(UIP_IP_BUF->srcipaddr));
@@ -35,35 +36,33 @@ static void udp_handler(void)
 				UIP_IP_BUF->srcport);
 		}
 		else if(command->id == CMD_TURN){
-			if((int)command->info == TURN_ON){
+			if(icommand->info == TURN_ON){
 				radio_status.on_off = 1;
 				leds_on(LEDS_ALL);
 			}
-			else if((int)command->info == TURN_OFF){
+			else if(icommand->info == TURN_OFF){
 				radio_status.on_off = 0;
 				leds_off(LEDS_ALL);
 			}
 		}
 		else if(command->id == SET_VOLUME){
-			radio_status.volume = (uint8_t)command->info;
-			uip_udp_packet_sendto(radio_conn, command, sizeof(cmdf_t),
-				&UIP_IP_BUF->srcipaddr, UIP_IP_BUF->srcport);
+			radio_status.volume = icommand->info;
 		}
 		else if(command->id == GET_VOLUME){
-			command->info = (float)radio_status.volume;
-			command->id = RESP_GET_VOLUME;
-			uip_udp_packet_sendto(radio_conn, command, sizeof(cmdf_t),
+			cmd_t c;
+			c.info = radio_status.volume;
+			c.id = RESP_GET_VOLUME;
+			uip_udp_packet_sendto(radio_conn, &c, sizeof(cmd_t),
 				&UIP_IP_BUF->srcipaddr, UIP_IP_BUF->srcport);
 		}
 		else if(command->id == SET_STATION){
 			radio_status.station = command->info;
-			uip_udp_packet_sendto(radio_conn, command, sizeof(cmdf_t),
-				&UIP_IP_BUF->srcipaddr, UIP_IP_BUF->srcport);
 		}
 		else if(command->id == GET_STATION){
-			command->info = radio_status.station;
-			command->id = RESP_GET_STATION;
-			uip_udp_packet_sendto(radio_conn, command, sizeof(cmdf_t),
+			cmdf_t c;
+			c.info = radio_status.station;
+			c.id = RESP_GET_STATION;
+			uip_udp_packet_sendto(radio_conn, &c, sizeof(cmdf_t),
 				&UIP_IP_BUF->srcipaddr, UIP_IP_BUF->srcport);
 		}
 		else{

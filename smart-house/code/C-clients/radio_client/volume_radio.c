@@ -11,7 +11,7 @@ int main(int argc, char**argv)
 {
    int sockfd;
    
-   cmdf_t c;
+   cmd_t c;
    
    struct sockaddr_in6 addr;
 	 struct sockaddr_in6 remaddr;
@@ -26,7 +26,7 @@ int main(int argc, char**argv)
    addr.sin6_port = htons(9000);
 
    c.id = SET_VOLUME;
-	c.info = 40.0;
+	c.info = 40;
 	 /*uint32_t volume;
 	 
 	 printf("Informe o volume desejado: ");
@@ -36,15 +36,16 @@ int main(int argc, char**argv)
 	 c.volume = volume;*/
 	 
    sendto(sockfd, &c, sizeof(c), 0, (struct sockaddr*)&addr, sizeof(addr));
+   puts("Volume enviado!!!!");
 
-   cmdf_t buf;
+   /*cmdf_t buf;
 	
 	if( (recvfrom(sockfd, &buf, sizeof(buf), 0, (struct sockaddr*)&remaddr, &addrlen) > 0))
 	{
 		printf("Recebendo confirmação..\n");
 		if (buf.id == SET_VOLUME)
 			printf("Volume selecionado: %.0f \n", buf.info);
-	}
+	}*/
 	
   close(sockfd);
 

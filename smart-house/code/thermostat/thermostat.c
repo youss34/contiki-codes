@@ -22,6 +22,7 @@ static void udp_handler(void)
 {
 	if(uip_newdata()) {
 		cmdf_t *command = (cmdf_t *)uip_appdata;
+		cmd_t *icommand = (cmd_t *)uip_appdata;
 
 		PRINTF("Command %u received from ", command->id);
 		PRINT6ADDR(&(UIP_IP_BUF->srcipaddr));
@@ -35,24 +36,23 @@ static void udp_handler(void)
 				UIP_IP_BUF->srcport);
 		}
 		else if(command->id == CMD_TURN){
-			if((int)command->info == TURN_ON){
+			if(icommand->info == TURN_ON){
 				thermostat_status.on_off = 1;
 				leds_on(LEDS_ALL);
 			}
-			else if((int)command->info == TURN_OFF){
+			else if(icommand->info == TURN_OFF){
 				thermostat_status.on_off = 0;
 				leds_off(LEDS_ALL);
 			}
 		}
 		else if(command->id == SET_TEMPERATURE){
 			thermostat_status.temperature = command->info;
-			uip_udp_packet_sendto(thermostat_conn, command, sizeof(cmdf_t),
-				&UIP_IP_BUF->srcipaddr, UIP_IP_BUF->srcport);
 		}
 		else if(command->id == GET_TEMPERATURE){
-			command->info = thermostat_status.temperature;
-			command->id = RESP_GET_TEMPERATURE;
-			uip_udp_packet_sendto(thermostat_conn, command, sizeof(cmdf_t),
+			cmdf_t c;
+			c.info = thermostat_status.temperature;
+			c.id = RESP_GET_TEMPERATURE;
+			uip_udp_packet_sendto(thermostat_conn, &c, sizeof(cmdf_t),
 				&UIP_IP_BUF->srcipaddr, UIP_IP_BUF->srcport);
 		}
 		else{

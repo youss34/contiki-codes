@@ -26,12 +26,13 @@ static void udp_handler(void)
 		PRINT6ADDR(&(UIP_IP_BUF->srcipaddr));
 		PRINTF("\n");
 		PRINTF("Port: %u\n", UIP_HTONS(UIP_IP_BUF->srcport));
-		
+
 		if(command->id == GET_STATUS){
+			cmd_t c;
 			unsigned char status = leds_get();
-			command->id = RESP_GET_STATION;
-			command->info = (uint8_t) status;
-			uip_udp_packet_sendto(lamp_conn, command, sizeof(cmd_t),
+			c.id = RESP_GET_STATION;
+			c.info = (uint8_t) status;
+			uip_udp_packet_sendto(lamp_conn, &c, sizeof(cmd_t),
 				&UIP_IP_BUF->srcipaddr, UIP_IP_BUF->srcport);
 		}
 		else if(command->id == CMD_TURN && command->info == TURN_ON){

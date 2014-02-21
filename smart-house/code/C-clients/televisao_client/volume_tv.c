@@ -37,15 +37,16 @@ int main(int argc, char**argv)
 	 c.volume = volume;*/
 	 
    sendto(sockfd, &c, sizeof(c), 0, (struct sockaddr*)&addr, sizeof(addr));
+   puts("Volume enviado!!!");
 
-   cmd_t buf;
+   /*cmd_t buf;
 	
 	if( (recvfrom(sockfd, &buf, sizeof(buf), 0, (struct sockaddr*)&remaddr, &addrlen) > 0))
 	{
 		printf("Recebendo confirmação..\n");
 		if (buf.id == SET_VOLUME)
 			printf("Volume selecionado: %u \n", buf.info);
-	}
+	}*/
 	
   close(sockfd);
 
