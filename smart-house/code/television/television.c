@@ -36,11 +36,11 @@ static void udp_handler(void)
 		}
 		else if(command->id == CMD_TURN){
 			if(command->info == TURN_ON){
-				tv_status.on_off = 1;
+				tv_status.on_off = TURN_ON;
 				leds_on(LEDS_ALL);
 			}
 			else if(command->info == TURN_OFF){
-				tv_status.on_off = 0;
+				tv_status.on_off = TURN_OFF;
 				leds_off(LEDS_ALL);
 			}
 		}
@@ -85,8 +85,8 @@ PROCESS_THREAD(television_process, ev, data)
 	television_conn = udp_new(NULL, 0, NULL);
 	udp_bind(television_conn, UIP_HTONS(9000));
 
-	tv_status.id = 1;
-	tv_status.on_off = 0;
+	tv_status.id = 0;
+	tv_status.on_off = TURN_OFF;
 	tv_status.channel = 14;
 	tv_status.volume = 25;
 

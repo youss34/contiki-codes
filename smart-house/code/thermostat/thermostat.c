@@ -37,11 +37,11 @@ static void udp_handler(void)
 		}
 		else if(command->id == CMD_TURN){
 			if(icommand->info == TURN_ON){
-				thermostat_status.on_off = 1;
+				thermostat_status.on_off = TURN_ON;
 				leds_on(LEDS_ALL);
 			}
 			else if(icommand->info == TURN_OFF){
-				thermostat_status.on_off = 0;
+				thermostat_status.on_off = TURN_OFF;
 				leds_off(LEDS_ALL);
 			}
 		}
@@ -76,8 +76,8 @@ PROCESS_THREAD(thermostat_process, ev, data)
 	thermostat_conn = udp_new(NULL, 0, NULL);
 	udp_bind(thermostat_conn, UIP_HTONS(9000));
 
-	thermostat_status.on_off = 0;
-	thermostat_status.temperature = 27.5;
+	thermostat_status.on_off = TURN_OFF;
+	thermostat_status.temperature = 27.50;
 
 	while(1){
 		PROCESS_YIELD();

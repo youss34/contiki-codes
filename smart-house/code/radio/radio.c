@@ -37,11 +37,11 @@ static void udp_handler(void)
 		}
 		else if(command->id == CMD_TURN){
 			if(icommand->info == TURN_ON){
-				radio_status.on_off = 1;
+				radio_status.on_off = TURN_ON;
 				leds_on(LEDS_ALL);
 			}
 			else if(icommand->info == TURN_OFF){
-				radio_status.on_off = 0;
+				radio_status.on_off = TURN_OFF;
 				leds_off(LEDS_ALL);
 			}
 		}
@@ -86,8 +86,8 @@ PROCESS_THREAD(radio_process, ev, data)
 	radio_conn = udp_new(NULL, 0, NULL);
 	udp_bind(radio_conn, UIP_HTONS(9000));
 
-	radio_status.on_off = 0;
-	radio_status.station = 94.9;
+	radio_status.on_off = TURN_OFF;
+	radio_status.station = 94.90;
 	radio_status.volume = 25;
 
 	while(1){

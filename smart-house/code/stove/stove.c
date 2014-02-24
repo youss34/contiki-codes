@@ -62,11 +62,11 @@ PROCESS_THREAD(stove_process, ev, data)
 	stove_conn = udp_new(NULL, 0, NULL);
 	udp_bind(stove_conn, UIP_HTONS(9000));
 
-	stove_status.status_boca1 = 0;
-	stove_status.status_boca2 = 1;
-	stove_status.status_boca3 = 1;
-	stove_status.status_boca4 = 0;
-	stove_status.status_forno = 0;
+	stove_status.status_boca1 = TURN_OFF;
+	stove_status.status_boca2 = TURN_ON;
+	stove_status.status_boca3 = TURN_ON;
+	stove_status.status_boca4 = TURN_OFF;
+	stove_status.status_forno = TURN_OFF;
 	stove_status.temperature = 50.0;
 
 	while(1){

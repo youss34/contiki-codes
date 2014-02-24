@@ -13,6 +13,7 @@
 #include "net/uip-debug.h"
 
 static struct uip_udp_conn *lamp_conn;
+static uint8_t status;
 
 PROCESS(lamp_process, "Lamp process");
 AUTOSTART_PROCESSES(&lamp_process);
@@ -29,16 +30,17 @@ static void udp_handler(void)
 
 		if(command->id == GET_STATUS){
 			cmd_t c;
-			unsigned char status = leds_get();
-			c.id = RESP_GET_STATION;
-			c.info = (uint8_t) status;
+			c.id = RESP_GET_STATUS;
+			c.info = status;
 			uip_udp_packet_sendto(lamp_conn, &c, sizeof(cmd_t),
 				&UIP_IP_BUF->srcipaddr, UIP_IP_BUF->srcport);
 		}
 		else if(command->id == CMD_TURN && command->info == TURN_ON){
+			status = TURN_ON;
 			leds_on(LEDS_ALL);
 		}
 		else if(command->id == CMD_TURN && command->info == TURN_OFF){
+			status = TURN_OFF;
 			leds_off(LEDS_ALL);
 		}
 		else{
@@ -54,6 +56,7 @@ PROCESS_THREAD(lamp_process, ev, data)
 	PROCESS_BEGIN();
 
 	PRINTF("Lamp process started\n");
+	status = TURN_OFF;
 
 	uip_ip6addr(&ipaddr, 0xaaaa, 0, 0, 0, 0, 0, 0, 0);
 	uip_ds6_set_addr_iid(&ipaddr, &uip_lladdr);
