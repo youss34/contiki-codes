@@ -97,9 +97,9 @@ PROCESS_THREAD(monitor_process, ev, data)
 			p_collect->vet[read].d4 = humidity;
 
 			printf("Read %u datas...\n", (read + 1));
-			printf("light1: %u\n", light1);
-			printf("light2: %u\n", light2);
-			printf("temp  : %u\n", temperature);
+			printf("light1: %u | ", light1);
+			printf("light2: %u | ", light2);
+			printf("temp  : %u | ", temperature);
 			printf("humi  : %u\n", humidity);
 
 			read++;

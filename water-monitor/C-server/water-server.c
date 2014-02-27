@@ -15,6 +15,7 @@ int main(int argc, char**argv)
 	socklen_t len = sizeof(cliaddr);
 	packet_t packet;
 	ack_t ack;
+	char source[42];
 
 	sockfd = socket(AF_INET6, SOCK_DGRAM, 0);
 
@@ -27,17 +28,20 @@ int main(int argc, char**argv)
 	while(1){
 		n = recvfrom(sockfd, &packet, sizeof(packet_t), 0, (struct sockaddr *)&cliaddr, &len);
 		if(n > 0){
-			puts("Data received!!!");
+			inet_ntop(AF_INET6, &cliaddr.sin6_addr, source, sizeof(source));
+			source[strlen(source)] = '\0';
+			printf("\nData received from %s\n", source);
+			/*puts("-----------+------------+------------+------------");
 			for(i = 0; i < 8; i++){
 				printf("d1 = %5u | ", packet.vet[i].d1);
 				printf("d2 = %5u | ", packet.vet[i].d2);
 				printf("d3 = %5u | ", packet.vet[i].d3);
 				printf("d4 = %5u\n", packet.vet[i].d4);
 				puts("-----------+------------+------------+------------");
-			}
+			}*/
 			ack.ack = 1;
 			ack.serial = packet.serial;
-			printf("\nSending ack with serial equals %u\n", ack.serial);
+			printf("Sending ack with serial equals %u\n", ack.serial);
 			sendto(sockfd ,&ack, sizeof(ack_t), 0, (struct sockaddr *)&cliaddr, sizeof(cliaddr));
 		}
 	}
