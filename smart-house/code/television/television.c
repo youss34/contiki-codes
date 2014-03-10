@@ -18,6 +18,9 @@ static tv_status_t tv_status;
 PROCESS(television_process, "Television process");
 AUTOSTART_PROCESSES(&television_process);
 
+/**
+ * Function which is used to process commands sent by clients.
+ */
 static void udp_handler(void)
 {
 	if(uip_newdata()) {
@@ -70,6 +73,9 @@ static void udp_handler(void)
 	}
 }
 
+/**
+ * Main process thread.
+ */
 PROCESS_THREAD(television_process, ev, data)
 {
 	uip_ipaddr_t ipaddr;
@@ -78,6 +84,7 @@ PROCESS_THREAD(television_process, ev, data)
 
 	PRINTF("Television process started\n");
 
+	/* The piece of code below sets a IPv6 address automatically for a node. */
 	uip_ip6addr(&ipaddr, 0xaaaa, 0, 0, 0, 0, 0, 0, 0);
 	uip_ds6_set_addr_iid(&ipaddr, &uip_lladdr);
 	uip_ds6_addr_add(&ipaddr, 0, ADDR_AUTOCONF);
@@ -85,11 +92,13 @@ PROCESS_THREAD(television_process, ev, data)
 	television_conn = udp_new(NULL, 0, NULL);
 	udp_bind(television_conn, UIP_HTONS(9000));
 
+	/* Initializes TV's status. It can be changed whenever is necessary. */
 	tv_status.id = 0;
 	tv_status.on_off = TURN_OFF;
 	tv_status.channel = 14;
 	tv_status.volume = 25;
 
+	/* Wait for a client command. */
 	while(1){
 		PROCESS_YIELD();
 		if(ev == tcpip_event) {

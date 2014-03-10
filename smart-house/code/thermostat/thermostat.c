@@ -18,6 +18,9 @@ static termostato_status_t thermostat_status;
 PROCESS(thermostat_process, "Thermostat process");
 AUTOSTART_PROCESSES(&thermostat_process);
 
+/**
+ * Function which is used to process commands sent by clients.
+ */
 static void udp_handler(void)
 {
 	if(uip_newdata()) {
@@ -61,6 +64,9 @@ static void udp_handler(void)
 	}
 }
 
+/**
+ * Main process thread.
+ */
 PROCESS_THREAD(thermostat_process, ev, data)
 {
 	uip_ipaddr_t ipaddr;
@@ -69,6 +75,7 @@ PROCESS_THREAD(thermostat_process, ev, data)
 
 	PRINTF("thermostat process started\n");
 
+	/* The piece of code below sets a IPv6 address automatically for a node. */
 	uip_ip6addr(&ipaddr, 0xaaaa, 0, 0, 0, 0, 0, 0, 0);
 	uip_ds6_set_addr_iid(&ipaddr, &uip_lladdr);
 	uip_ds6_addr_add(&ipaddr, 0, ADDR_AUTOCONF);
@@ -76,9 +83,12 @@ PROCESS_THREAD(thermostat_process, ev, data)
 	thermostat_conn = udp_new(NULL, 0, NULL);
 	udp_bind(thermostat_conn, UIP_HTONS(9000));
 
+	/* Initializes thermostat's status. It can be changed whenever is necessary.
+	 */
 	thermostat_status.on_off = TURN_OFF;
 	thermostat_status.temperature = 27.50;
 
+	/* Wait for a client command. */
 	while(1){
 		PROCESS_YIELD();
 		if(ev == tcpip_event) {

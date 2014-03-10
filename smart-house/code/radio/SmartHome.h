@@ -1,8 +1,9 @@
 #ifndef SMARTHOME_H
 #define SMARTHOME_H
 
-/* --- Estruturas genericas --- */
-
+/**
+ * General command structures.
+ */
 typedef struct cmd_s {
 	uint8_t id;
 	uint8_t info;
@@ -12,12 +13,12 @@ struct cmdf_s {
 	uint8_t id;
 	float info;
 } __attribute__((packed));
-
 typedef struct cmdf_s cmdf_t;
 
-/* --- Estruturas com atributos especificos --- 
----	 de cada aplicacao para retorno de status ---
-*/
+/**
+ * Structures which are used to return informations about their respespective
+ * deveice.
+ */
 
 typedef struct tv_status_s {
 	uint8_t id;
@@ -32,7 +33,6 @@ struct radio_status_s {
 	float station;
 	uint8_t volume;
 } __attribute__((packed));
-
 typedef struct radio_status_s radio_status_t;
 
 struct termostato_status_s {
@@ -40,7 +40,6 @@ struct termostato_status_s {
 	uint8_t on_off;
 	float temperature;
 } __attribute__((packed));
-
 typedef struct termostato_status_s termostato_status_t;
 
 struct fogao_status_s {
@@ -52,13 +51,12 @@ struct fogao_status_s {
 	uint8_t status_forno;
 	float temperature;
 } __attribute__((packed));
-
 typedef struct fogao_status_s fogao_status_t;
 
 enum {
 	CMD_TURN    		= 1,
 
-	GET_STATUS 			= 2,	
+	GET_STATUS 			= 2,
 	GET_CHANNEL			= 3,
 	GET_VOLUME			= 4,
 	GET_TEMPERATURE 	= 5,

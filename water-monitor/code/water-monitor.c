@@ -4,7 +4,6 @@
 #include "sys/etimer.h"
 #include "dev/light-sensor.h"
 #include "dev/sht11-sensor.h"
-//#include "dev/leds.h"
 
 #include <string.h>
 
@@ -27,10 +26,16 @@ static uint8_t received;
 PROCESS(monitor_process, "Water monitor process");
 AUTOSTART_PROCESSES(&monitor_process);
 
+/**
+ * Function which is used to process received ack packets.
+ */
 static void udp_handler(void)
 {
 	if(uip_newdata()) {
 		ack_t *ack = (ack_t *)uip_appdata;
+		/* If the received serial number is equal to the current serial
+		 * number then old data are cleared and the current serial
+		 * number is incremented. */
 		if(ack->serial == serial){
 			p_send = p_collect;
 			received = OK;
@@ -46,6 +51,9 @@ static void send_data(void)
 			&serv_ipaddr, UIP_HTONS(9000));
 }
 
+/**
+ * Main process thread.
+ */
 PROCESS_THREAD(monitor_process, ev, data)
 {
 	uip_ipaddr_t ipaddr;
@@ -61,6 +69,7 @@ PROCESS_THREAD(monitor_process, ev, data)
 
 	PRINTF("Water monitor process started\n");
 
+	/* The piece of code below sets a IPv6 address automatically for a node. */
 	uip_ip6addr(&ipaddr, 0xaaaa, 0, 0, 0, 0, 0, 0, 0);
 	uip_ds6_set_addr_iid(&ipaddr, &uip_lladdr);
 	uip_ds6_addr_add(&ipaddr, 0, ADDR_AUTOCONF);
@@ -68,17 +77,21 @@ PROCESS_THREAD(monitor_process, ev, data)
 	monitor_conn = udp_new(NULL, 0, NULL);
 	udp_bind(monitor_conn, UIP_HTONS(9000));
 
+	/* Sets server IPv6 address. Data are sent to that address. */
 	uip_ip6addr(&serv_ipaddr, 0xaaaa, 0, 0, 0, 0, 0, 0, 1);
 	serial = 1;
 	read = 0;
 	received = FAIL;
 	p_send = p_collect = &p1;
+	/* Initializes collect timer. */
 	etimer_set(&collect, COLLECT_PERIOD * CLOCK_SECOND);
 	while(1){
 		PROCESS_YIELD();
+		/* Wait for server's ACK. */
 		if(ev == tcpip_event) {
 			udp_handler();
 		}
+		/* Collects sensors' values. */
 		else if(ev == PROCESS_EVENT_TIMER && data == &collect) {
 			SENSORS_ACTIVATE(light_sensor);
 			SENSORS_ACTIVATE(sht11_sensor);
@@ -96,24 +109,25 @@ PROCESS_THREAD(monitor_process, ev, data)
 			p_collect->vet[read].d3 = temperature;
 			p_collect->vet[read].d4 = humidity;
 
-			printf("Read %u datas...\n", (read + 1));
-			printf("light1: %u | ", light1);
+			printf("Read %u data...\n", (read + 1));
+			/*printf("light1: %u | ", light1);
 			printf("light2: %u | ", light2);
 			printf("temp  : %u | ", temperature);
-			printf("humi  : %u\n", humidity);
+			printf("humi  : %u\n", humidity);*/
 
 			read++;
 			if(read == 8){
 				p_collect = (p_collect == &p1) ? &p2 : &p1;
 				read = 0;
 				send_data();
-				/* O que acontece se for o momento de enviar os novos dados
-				 * e ainda nao chegou o ACK dos dados anteriormente enviados?*/
+				/* Initializes timer which waits a ACK packet. */
 				etimer_set(&receive, ACK_WAIT_TIME * CLOCK_SECOND);
 			}
 
 			etimer_reset(&collect);
 		}
+		/* Verifies if a ACK packet was received. If it does not then data are
+		 * sent again. */
 		else if(ev == PROCESS_EVENT_TIMER && data == &receive){
 			if(received == FAIL){
 				send_data();
@@ -121,6 +135,7 @@ PROCESS_THREAD(monitor_process, ev, data)
 			}
 			else{
 				received = FAIL;
+				etimer_stop(&receive);
 			}
 		}
 	}

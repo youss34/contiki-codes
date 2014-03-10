@@ -18,6 +18,9 @@ static fogao_status_t stove_status;
 PROCESS(stove_process, "Stove process");
 AUTOSTART_PROCESSES(&stove_process);
 
+/**
+ * Function which is used to process commands sent by clients.
+ */
 static void udp_handler(void)
 {
 	if(uip_newdata()) {
@@ -47,6 +50,9 @@ static void udp_handler(void)
 	}
 }
 
+/**
+ * Main process thread.
+ */
 PROCESS_THREAD(stove_process, ev, data)
 {
 	uip_ipaddr_t ipaddr;
@@ -55,6 +61,7 @@ PROCESS_THREAD(stove_process, ev, data)
 
 	PRINTF("Stove process started\n");
 
+	/* The piece of code below sets a IPv6 address automatically for a node. */
 	uip_ip6addr(&ipaddr, 0xaaaa, 0, 0, 0, 0, 0, 0, 0);
 	uip_ds6_set_addr_iid(&ipaddr, &uip_lladdr);
 	uip_ds6_addr_add(&ipaddr, 0, ADDR_AUTOCONF);
@@ -62,6 +69,7 @@ PROCESS_THREAD(stove_process, ev, data)
 	stove_conn = udp_new(NULL, 0, NULL);
 	udp_bind(stove_conn, UIP_HTONS(9000));
 
+	/* Initializes stove's status. It can be changed whenever is necessary. */
 	stove_status.status_boca1 = TURN_OFF;
 	stove_status.status_boca2 = TURN_ON;
 	stove_status.status_boca3 = TURN_ON;
@@ -69,6 +77,7 @@ PROCESS_THREAD(stove_process, ev, data)
 	stove_status.status_forno = TURN_OFF;
 	stove_status.temperature = 50.0;
 
+	/* Wait for a client command. */
 	while(1){
 		PROCESS_YIELD();
 		if(ev == tcpip_event) {

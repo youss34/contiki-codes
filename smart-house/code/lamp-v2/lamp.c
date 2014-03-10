@@ -18,6 +18,9 @@ static uint8_t status;
 PROCESS(lamp_process, "Lamp process");
 AUTOSTART_PROCESSES(&lamp_process);
 
+/**
+ * Function which is used to process commands sent by clients.
+ */
 static void udp_handler(void)
 {
 	if(uip_newdata()) {
@@ -37,6 +40,8 @@ static void udp_handler(void)
 		}
 		else if(command->id == CMD_TURN && command->info == TURN_ON){
 			status = TURN_ON;
+			/* In our example we work with leds but, the following function
+			 * can be changed to any device control interface. */
 			leds_on(LEDS_ALL);
 		}
 		else if(command->id == CMD_TURN && command->info == TURN_OFF){
@@ -49,6 +54,9 @@ static void udp_handler(void)
 	}
 }
 
+/**
+ * Main process thread.
+ */
 PROCESS_THREAD(lamp_process, ev, data)
 {
 	uip_ipaddr_t ipaddr;
@@ -58,6 +66,7 @@ PROCESS_THREAD(lamp_process, ev, data)
 	PRINTF("Lamp process started\n");
 	status = TURN_OFF;
 
+	/* The piece of code below sets a IPv6 address automatically for a node. */
 	uip_ip6addr(&ipaddr, 0xaaaa, 0, 0, 0, 0, 0, 0, 0);
 	uip_ds6_set_addr_iid(&ipaddr, &uip_lladdr);
 	uip_ds6_addr_add(&ipaddr, 0, ADDR_AUTOCONF);
@@ -65,6 +74,7 @@ PROCESS_THREAD(lamp_process, ev, data)
 	lamp_conn = udp_new(NULL, 0, NULL);
 	udp_bind(lamp_conn, UIP_HTONS(9000));
 
+	/* Wait for a client command. */
 	while(1){
 		PROCESS_YIELD();
 		if(ev == tcpip_event) {
