@@ -120,13 +120,13 @@ PROCESS_THREAD(monitor_process, ev, data)
 				p_collect = (p_collect == &p1) ? &p2 : &p1;
 				read = 0;
 				send_data();
-				/* Initializes timer which waits a ACK packet. */
+				/* Initializes timer which waits an ACK packet. */
 				etimer_set(&receive, ACK_WAIT_TIME * CLOCK_SECOND);
 			}
 
 			etimer_reset(&collect);
 		}
-		/* Verifies if a ACK packet was received. If it does not then data are
+		/* Verifies if an ACK packet was received. If it does not then data are
 		 * sent again. */
 		else if(ev == PROCESS_EVENT_TIMER && data == &receive){
 			if(received == FAIL){

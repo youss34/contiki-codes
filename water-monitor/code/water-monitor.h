@@ -28,9 +28,10 @@ typedef struct packet_s {
 /**
  * ACK structure.
  */
-typedef struct ack_s {
+struct ack_s {
 	uint8_t   ack;   // always 1
 	uint16_t  serial;
-} ack_t;
+} __attribute__((packed));
+typedef struct ack_s ack_t;
 
 #endif
