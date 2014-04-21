@@ -4,8 +4,8 @@
 #define OK 		1
 #define FAIL 	0
 
-#define COLLECT_PERIOD 	20 // In seconds
-#define ACK_WAIT_TIME 	10 // In seconds
+#define COLLECT_PERIOD 	5 // In seconds
+#define ACK_WAIT_TIME 	3 // In seconds
 
 /**
  * Structure which contains sensors' read values.
